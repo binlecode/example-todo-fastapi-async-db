@@ -14,20 +14,56 @@ uvicorn app.main:app --reload
 
 ## async db with sqlalchemy
 
-About async SqlAlchemy:
+About async SqlAlchemy implementation:
 
-- create_async_engine() the asyncengine
-- work with connect() and begin() transaction methods that deliver
-  asynchronous context type managers
-- async context manager uses AsyncConnection to invoke the statements
-  in the server-side async results
-- uses asyncio platform with the greenlet lib provided by python runtime
+- async db, connection string for sqlite uses `aiosqlite`:
+  `SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./sqlite.db"`
+- create_async_engine() and async SessionLocal factory method
+  see [`app/db.py`](./app/db.py).
+- async session context manager with `yield` for FastApi web stack dependency
+- async CRUD with async session
+- db session independent SqlAlchemy entity models
+- db session independent Pydentic schemas
 
-For async db, the connection string for sqlite uses `aiosqlite`:
-`SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./sqlite.db"`
+There are two common ways of using async session:
 
+1) implicit context manager with `yield` for resource cleanup:
 
+```python
+async def get_db() -> AsyncSession:
+    async with SessionLocal() as db:
+        yield db
+```
 
+2) explicit with .. as context manager
+
+```python
+async with SessionLocal() as db:
+    todos = await db.execute(query)
+...
+```
+
+Both are useful for their suitable use cases.
+Option 1 is good for dependency injection such as FastAPI routers.
+Option 2 has plain syntax of session reference that can be used anywhere
+
+## ORM relationship in async queries
+
+Lazy load is tricky in async session queries, usually in need of session
+manual commit followed by refresh and sometimes global
+session `expire_on_commit`
+change.
+Eager load is safer as it bundles all db operations in current session
+transaction.
+
+Two eager load modes used:
+
+- use `joinedload`, which use a join query to load associated entities
+- use `selectinload`, which runs a second `select * where key in (..)` query
+
+The query design tradeoff is one join query vs two separate select queries.
+Join load is preferred for one-to-many relations.
+Select-in load is preferred for many-to-one relations.
 
 ## model validation with pydantic
 

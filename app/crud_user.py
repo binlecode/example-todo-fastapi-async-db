@@ -9,9 +9,9 @@ DEFAULT_LIMIT = 5
 
 
 async def get_user(db: AsyncSession, id: int):
-    # use `joinedload` mode eager load to fetch belonging todos
-    # other modes are like: `selectinload`, which runs `select * where user_id in (..)`
-    # this is a query design tradeoff of one join query vs two separate select queries
+    # Use `joinedload` mode eager load to fetch belonging todos.
+    # Other modes are like: `selectinload`, which runs `select * where user_id in (..)`.
+    # This is a query design tradeoff of one join query vs two separate select queries.
     query = select(User).where(User.id == id).options(joinedload(User.todos))
     # query = select(User).where(User.id == id).options(selectinload(User.todos))
     users = await db.execute(query)
@@ -49,6 +49,8 @@ async def create_user(db: AsyncSession, user_data: schemas.UserCreate) -> User:
     db.add(user)
     try:
         await db.commit()
+        # session refresh on this user entity instance is not needed as there
+        #   is no further use of it in current session
         # await db.refresh(user)
     except:
         db.rollback()
