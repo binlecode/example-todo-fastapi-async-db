@@ -18,10 +18,26 @@ async def read_users(
     return await crud_user.get_users(db, offset=offset, limit=limit)
 
 
-# @router.get("/{id}", response_model=schemas.UserRead)
+@router.get("/crudmixin/", response_model=list[schemas.UserRead])
+async def read_users_with_crudmixin(
+    offset: int = 0,
+    limit: int = 10,
+    db: AsyncSession = Depends(get_db_session),
+):
+    return await crud_user.get_users_with_crudmixin(db, offset=offset, limit=limit)
+
+
 @router.get("/{id}", response_model=schemas.UserReadNested)
 async def read_user(id: int, db: AsyncSession = Depends(get_db_session)):
     user = await crud_user.get_user(db, id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
+    return user
+
+
+@router.get("/crudmixin/{id}", response_model=schemas.UserRead)
+async def read_user_with_crudmixin(id: int, db: AsyncSession = Depends(get_db_session)):
+    user = await crud_user.get_user_with_crudmixin(db, id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
     return user

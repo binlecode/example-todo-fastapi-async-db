@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
+from .models_crud import CrudMixin
+
 Base = declarative_base()
 
 
@@ -14,7 +16,7 @@ class AutoTimestampMixin:
     updated_at = Column(DateTime, default=lambda: datetime.utcnow())
 
 
-class User(Base, AutoTimestampMixin):
+class User(Base, AutoTimestampMixin, CrudMixin):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)

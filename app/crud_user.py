@@ -22,6 +22,10 @@ async def get_user(db: AsyncSession, id: int):
     return None
 
 
+async def get_user_with_crudmixin(db: AsyncSession, id: int):
+    return await User.get(db, id)
+
+
 async def get_users(
     db: AsyncSession, filters: dict = {}, offset: int = 0, limit: int = DEFAULT_LIMIT
 ):
@@ -36,6 +40,12 @@ async def get_users(
     # See: https://docs.sqlalchemy.org/en/20/orm/queryguide/select.html#selecting-orm-entities-and-attributes
     users = users.scalars().all()
     return users
+
+
+async def get_users_with_crudmixin(
+    db: AsyncSession, offset: int = 0, limit: int = DEFAULT_LIMIT
+):
+    return await User.list(db, limit, offset)
 
 
 async def create_user(db: AsyncSession, user_data: schemas.UserCreate) -> User:
@@ -53,6 +63,6 @@ async def create_user(db: AsyncSession, user_data: schemas.UserCreate) -> User:
         #   is no further use of it in current session
         # await db.refresh(user)
     except:
-        db.rollback()
+        await db.rollback()
         raise
     return user
