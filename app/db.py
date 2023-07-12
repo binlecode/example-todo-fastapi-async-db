@@ -28,8 +28,10 @@ engine = create_async_engine(
 )
 
 
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # To create async session, we should disable "expire_on_commit".
+# expire_on_commit=False will prevent attributes from getting expired after
+# commit, which will allow us to access these attributes without sending a
+# new query to database.
 # This is because we don't want sqlalchemy to issue new sql queries
 # to the database when accessing already committed objects.
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

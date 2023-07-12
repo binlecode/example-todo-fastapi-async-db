@@ -12,6 +12,10 @@ RESET_DB=true uvicorn app.main:app --reload
 uvicorn app.main:app --reload
 ```
 
+## openapi doc
+
+Openapi doc is auto-generated at `http://127.0.0.1:8000/docs`.
+
 ## async db with sqlalchemy
 
 About async SqlAlchemy implementation:

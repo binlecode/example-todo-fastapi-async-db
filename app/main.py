@@ -2,11 +2,13 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import users, todos
+from .db_migration import init_tables, migrate_data
+
 
 app = FastAPI(
     dependencies=[],
-    title="Todo App with FastAPI OpenAPI doc",
-    version="0.0.1",
+    title="Todo App with FastAPI OpenAPI doc and async DB persistence",
+    version="0.1",
 )
 
 
@@ -26,34 +28,16 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"hello": "fastapi!"}
+    return {"message": "fastapi!"}
 
 
 @app.get("/async")
 async def read_root_async():
-    return {"hello": "fastapi async!"}
+    return {"message": "fastapi async!"}
 
 
 app.include_router(users.router)
 app.include_router(todos.router)
-
-#
-# database initialization and data load
-#
-
-# from .db_migration import init_tables, migrate_data
-#
-# if os.environ.get("RESET_DB"):
-#     print(">> database reset enabled")
-#     init_tables()
-#     migrate_data()
-
-
-#
-# to run initialization work in async mode, use on_event("startup")
-#
-
-from .db_migration import init_tables, migrate_data
 
 
 @app.on_event("startup")
