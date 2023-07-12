@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.future import select
+from sqlalchemy import delete as sa_delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import schemas
 from .models import Todo
@@ -24,8 +25,8 @@ async def create_todo(db: AsyncSession, todo_data: schemas.TodoCreate):
     db.add(todo)
     try:
         await db.commit()
-        # this db.refresh on todo instance is not needed actually
-        # because there's no further usage of it in this session
+        # this db.refresh is not needed actually
+        # because there's no further usage of this instance in this session
         await db.refresh(todo)
     except:
         await db.rollback()
@@ -33,29 +34,43 @@ async def create_todo(db: AsyncSession, todo_data: schemas.TodoCreate):
     return todo
 
 
-# TODO: convert to async
-def update_todo(db: Session, todo_data: schemas.TodoUpdate):
-    todo = db.query(Todo).filter(Todo.id == id).first()
+async def update_todo(db: AsyncSession, id: int, todo_data: schemas.TodoUpdate):
+    query = select(Todo).where(Todo.id == id)
+    todos = await db.execute(query)
+    # AsyncResult.first() returns none if no row, or 1 element tuple
+    if not todos:
+        return None
+    (todo,) = todos.first()
     todo.text = todo_data.text
     todo.completed = todo_data.completed
-    db.commit()
-    db.refresh(todo)
+    todo.owner_id = todo_data.owner_id
+    db.add(todo)
+    try:
+        await db.commit()
+        await db.refresh(todo)
+    except:
+        await db.rollback()
+        raise
     return todo
 
 
-# TODO: convert to async
-def delete_todo(db: Session, id: int):
-    todo = db.query(Todo).filter(Todo.id == id).first()
-    db.delete(todo)
-    db.commit()
+async def delete_todo(db: Session, id: int):
+    query = sa_delete(Todo).where(Todo.id == id)
+    await db.execute(query)
+    try:
+        await db.commit()
+    except:
+        await db.rollback()
+        raise
+    return True
 
 
 async def get_todo(id: int):
     # use a separate `select .. in` query to eager load owner data
     query = select(Todo).where(Todo.id == id).options(selectinload(Todo.owner))
-    # ! Note: this is an alternative implementation to the FastAPI dependency
-    #   injected db session.
-    #   See the get_todos(db: AsyncSession, ...) below for comparison.
+    # ! Note: this is an alternative way of requesting a db session to the
+    #   FastAPI dependency injected db session.
+    # See the get_todos(db: AsyncSession, ...) below for comparison.
     async with SessionLocal() as db:
         todos = await db.execute(query)
     # AsyncResult.first() returns none if no row, or 1 element tuple

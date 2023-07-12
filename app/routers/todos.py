@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db import get_db
+from app.db import get_db_session
 from .. import schemas
 from .. import crud_todo
 
@@ -15,7 +15,7 @@ async def read_todos(
     user_id: int = None,
     offset: int = 0,
     limit: int = 10,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db_session),
 ):
     if user_id:
         todos = await crud_todo.get_user_todos(db, user_id, offset=offset, limit=limit)
@@ -35,7 +35,7 @@ async def read_todo(id: int):
 
 @router.post("/", response_model=schemas.TodoRead)
 async def create_todo(
-    todo_data: schemas.TodoCreate, db: AsyncSession = Depends(get_db)
+    todo_data: schemas.TodoCreate, db: AsyncSession = Depends(get_db_session)
 ):
     todo = await crud_todo.create_todo(db, todo_data)
     if not todo:
@@ -43,3 +43,25 @@ async def create_todo(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Bad Request"
         )
     return todo
+
+
+@router.put("/{id}", response_model=schemas.TodoRead)
+async def update_todo(
+    id: int, todo_data: schemas.TodoUpdate, db: AsyncSession = Depends(get_db_session)
+):
+    todo = await crud_todo.update_todo(db, id, todo_data)
+    if not todo:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Bad Request"
+        )
+    return todo
+
+
+@router.delete("/{id}")
+async def delete_todo(id: int, db: AsyncSession = Depends(get_db_session)):
+    r = await crud_todo.delete_todo(db, id)
+    if not r:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Bad Request"
+        )
+    return {"message": "resource deleted"}, 200

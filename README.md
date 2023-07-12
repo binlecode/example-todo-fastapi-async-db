@@ -34,7 +34,7 @@ There are two common ways of using async session:
 1) implicit context manager with `yield` for resource cleanup:
 
 ```python
-async def get_db() -> AsyncSession:
+async def get_db_session() -> AsyncSession:
     async with SessionLocal() as db:
         yield db
 ```
@@ -49,7 +49,7 @@ async with SessionLocal() as db:
 
 Both are useful for their suitable use cases.
 Option 1 is good for dependency injection such as FastAPI routers.
-Option 2 has plain syntax of session reference that can be used anywhere
+Option 2 has explicit session scope boundary isolation
 
 ## ORM relationship in async queries
 

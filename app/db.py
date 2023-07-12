@@ -39,6 +39,6 @@ SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 # create FastAPI dependency async function to get an async db session
 # use with-as context manager for session cleanup
-async def get_db() -> AsyncSession:
+async def get_db_session() -> AsyncSession:
     async with SessionLocal() as db:
         yield db
