@@ -43,7 +43,28 @@ async def read_user_with_crudmixin(id: int, db: AsyncSession = Depends(get_db_se
     return user
 
 
-@router.post("/signup", response_model=schemas.UserRead)
+@router.get("/filter/", response_model=list[schemas.UserRead])
+async def filter_users(
+    email: str | None = None,
+    lname: str | None = None,
+    fname: str | None = None,
+    offset: int = 0,
+    limit: int = 10,
+    db: AsyncSession = Depends(get_db_session),
+):
+    filter_conditions = []
+    if email:
+        filter_conditions.append(("email", "ilike", email))
+    if lname:
+        filter_conditions.append(("lname", "ilike", lname))
+    if fname:
+        filter_conditions.append(("fname", "ilike", fname))
+    return await crud_user.filter_users(
+        db, filter_conditions, offset=offset, limit=limit
+    )
+
+
+@router.post("/signup/", response_model=schemas.UserRead)
 async def signup(
     user_data: schemas.UserCreate, db: AsyncSession = Depends(get_db_session)
 ):

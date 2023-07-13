@@ -42,6 +42,17 @@ async def get_users(
     return users
 
 
+async def filter_users(
+    db: AsyncSession,
+    filter_conditions: list,
+    offset: int = 0,
+    limit: int = DEFAULT_LIMIT,
+):
+    query = select(User).limit(limit).offset(offset)
+    users = await User.filter(db, filter_conditions, query)
+    return users
+
+
 async def get_users_with_crudmixin(
     db: AsyncSession, offset: int = 0, limit: int = DEFAULT_LIMIT
 ):

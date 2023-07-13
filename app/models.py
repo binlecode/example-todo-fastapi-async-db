@@ -3,20 +3,14 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
+from .models_timestamp import AutoTimestampMixin
 from .models_crud import CrudMixin
+from .models_filter import FilterMixin
 
 Base = declarative_base()
 
 
-# add autotimestamp mixin for model base
-class AutoTimestampMixin:
-    # ! note that `server_default` takes a SQL expression
-    # the python type for `DateTime` columns is datetime.datetime
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.utcnow())
-    updated_at = Column(DateTime, default=lambda: datetime.utcnow())
-
-
-class User(Base, AutoTimestampMixin, CrudMixin):
+class User(Base, AutoTimestampMixin, CrudMixin, FilterMixin):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)

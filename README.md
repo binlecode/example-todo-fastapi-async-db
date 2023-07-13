@@ -69,6 +69,16 @@ The query design tradeoff is one join query vs two separate select queries.
 Join load is preferred for one-to-many relations.
 Select-in load is preferred for many-to-one relations.
 
+## dynamic filtering with ORM query
+
+With Sqlalchemy 2.0 new query syntax, a dynamic query builder is implemented
+as ORM model mixin to support dynamic filtering.
+
+Dynamic filters are implemented as SqlAlchemy ColumnElement expressions
+concatenated in Query builder DSL.
+
+See: https://docs.sqlalchemy.org/en/20/core/sqlelement.html#sqlalchemy.sql.expression.ColumnElement
+
 ## model validation with pydantic
 
 To convert Sqlalchemy orm model data into pydantic validation schema,
