@@ -27,14 +27,18 @@ engine = create_async_engine(
     echo=True,
 )
 
-
+# For non-readonly applications, follow best practice to set autocommit=False
+# to avoid unintentional commits, instead, always use db.commit() to explicitly
+# commit transactions.
 # To create async session, we should disable "expire_on_commit".
 # expire_on_commit=False will prevent attributes from getting expired after
 # commit, which will allow us to access these attributes without sending a
 # new query to database.
 # This is because we don't want sqlalchemy to issue new sql queries
 # to the database when accessing already committed objects.
-SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+SessionLocal = sessionmaker(
+    engine, autocommit=False, class_=AsyncSession, expire_on_commit=False
+)
 
 
 # create FastAPI dependency async function to get an async db session

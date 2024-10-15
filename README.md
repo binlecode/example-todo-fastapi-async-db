@@ -24,32 +24,37 @@ Openapi doc is auto-generated at `http://127.0.0.1:8000/docs`.
 
 About async SqlAlchemy implementation:
 
-- async db, connection string for sqlite uses `aiosqlite`:
-  `SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./sqlite.db"`
-- create_async_engine() and async SessionLocal factory method
-  see [`app/db.py`](./app/db.py).
-- async session context manager with `yield` for FastApi web stack dependency
-- async CRUD with async session
-- db session independent SqlAlchemy entity models
-- db session independent Pydentic schemas
+-   async db, connection string for sqlite uses `aiosqlite`:
+    `SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./sqlite.db"`
+-   create_async_engine() and async SessionLocal factory method
+    see [`app/db.py`](./app/db.py).
+-   async session context manager with `yield` for FastApi web stack dependency
+-   async CRUD with async session
+-   db session independent SqlAlchemy entity models
+-   db session independent Pydentic schemas
 
 There are two common ways of using async session:
 
-1) implicit context manager with `yield` for resource cleanup:
+1. implicit context manager with `yield` for resource cleanup:
 
 ```python
-async def get_db_session() -> AsyncSession:
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as db:
         yield db
 ```
 
-2) explicit with .. as context manager
+This session getter can be used in fastapi dependency injection during router
+function definition.
+
+````python
+
+1) explicit with .. as context manager
 
 ```python
 async with SessionLocal() as db:
     todos = await db.execute(query)
 ...
-```
+````
 
 Both are useful for their suitable use cases.
 Option 1 is good for dependency injection such as FastAPI routers.
@@ -66,8 +71,8 @@ transaction.
 
 Two eager load modes used:
 
-- use `joinedload`, which use a join query to load associated entities
-- use `selectinload`, which runs a second `select * where key in (..)` query
+-   use `joinedload`, which use a join query to load associated entities
+-   use `selectinload`, which runs a second `select * where key in (..)` query
 
 The query design tradeoff is one join query vs two separate select queries.
 Join load is preferred for one-to-many relations.
@@ -113,4 +118,3 @@ pip freeze > requirements.txt
 
 Async db driver libs are needed for specific databases, for example:
 `pip install asyncpg` for postgreSql.
-
