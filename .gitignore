@@ -9,7 +9,13 @@ sqlite.db
 .idea
 .ipynb_checkpoints
 .mypy_cache
-.vscode
+
+# for VS Code
+# Include application specific: launch.json, tasks.json, etc.
+# Exclude user specific: settings.json, extensions.json
+.vscode/settings.json
+.vscode/extensions.json
+
 __pycache__
 .pytest_cache
 htmlcov
