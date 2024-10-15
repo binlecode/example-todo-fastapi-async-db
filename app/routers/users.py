@@ -28,7 +28,7 @@ async def read_users_with_crudmixin(
 
 
 @router.get("/{id}", response_model=schemas.UserReadNested)
-async def read_user(id: int, db: AsyncSession = Depends(get_db_session)):
+async def read_user(id: str, db: AsyncSession = Depends(get_db_session)):
     user = await crud_user.get_user(db, id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
@@ -36,7 +36,7 @@ async def read_user(id: int, db: AsyncSession = Depends(get_db_session)):
 
 
 @router.get("/crudmixin/{id}", response_model=schemas.UserRead)
-async def read_user_with_crudmixin(id: int, db: AsyncSession = Depends(get_db_session)):
+async def read_user_with_crudmixin(id: str, db: AsyncSession = Depends(get_db_session)):
     user = await crud_user.get_user_with_crudmixin(db, id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")

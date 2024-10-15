@@ -44,7 +44,7 @@ class TodoCreate(BaseModel):
 
 
 class TodoUpdate(TodoCreate):
-    id: int
+    id: str
 
 
 class TodoRead(TodoUpdate):

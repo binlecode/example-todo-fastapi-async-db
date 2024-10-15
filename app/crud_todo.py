@@ -34,7 +34,7 @@ async def create_todo(db: AsyncSession, todo_data: schemas.TodoCreate):
     return todo
 
 
-async def update_todo(db: AsyncSession, id: int, todo_data: schemas.TodoUpdate):
+async def update_todo(db: AsyncSession, id: str, todo_data: schemas.TodoUpdate):
     query = select(Todo).where(Todo.id == id)
     todos = await db.execute(query)
     # AsyncResult.first() returns none if no row, or 1 element tuple
@@ -54,7 +54,7 @@ async def update_todo(db: AsyncSession, id: int, todo_data: schemas.TodoUpdate):
     return todo
 
 
-async def delete_todo(db: Session, id: int):
+async def delete_todo(db: Session, id: str):
     query = sa_delete(Todo).where(Todo.id == id)
     await db.execute(query)
     try:
@@ -65,7 +65,7 @@ async def delete_todo(db: Session, id: int):
     return True
 
 
-async def get_todo(id: int):
+async def get_todo(id: str):
     # use a separate `select .. in` query to eager load owner data
     query = select(Todo).where(Todo.id == id).options(selectinload(Todo.owner))
     # ! Note: this is an alternative way of requesting a db session to the
@@ -89,7 +89,7 @@ async def get_todos(db: AsyncSession, offset: int = 0, limit: int = DEFAULT_LIMI
 
 
 async def get_user_todos(
-    db: AsyncSession, user_id: int, offset: int = 0, limit: int = DEFAULT_LIMIT
+    db: AsyncSession, user_id: str, offset: int = 0, limit: int = DEFAULT_LIMIT
 ):
     query = select(Todo).where(Todo.owner_id == user_id).limit(limit).offset(offset)
     todos = await db.execute(query)

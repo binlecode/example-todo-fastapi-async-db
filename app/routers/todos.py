@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/todos", dependencies=[])
 # @router.get("/", response_model=list[schemas.TodoReadNested])
 @router.get("/", response_model=list[schemas.TodoRead])
 async def read_todos(
-    user_id: int = None,
+    user_id: str = None,
     offset: int = 0,
     limit: int = 10,
     db: AsyncSession = Depends(get_db_session),
@@ -26,7 +26,7 @@ async def read_todos(
 
 # @router.get("/{id}", response_model=schemas.TodoRead)
 @router.get("/{id}", response_model=schemas.TodoReadNested)
-async def read_todo(id: int):
+async def read_todo(id: str):
     todo = await crud_todo.get_todo(id)
     if not todo:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
@@ -47,7 +47,7 @@ async def create_todo(
 
 @router.put("/{id}", response_model=schemas.TodoRead)
 async def update_todo(
-    id: int, todo_data: schemas.TodoUpdate, db: AsyncSession = Depends(get_db_session)
+    id: str, todo_data: schemas.TodoUpdate, db: AsyncSession = Depends(get_db_session)
 ):
     todo = await crud_todo.update_todo(db, id, todo_data)
     if not todo:
@@ -58,7 +58,7 @@ async def update_todo(
 
 
 @router.delete("/{id}")
-async def delete_todo(id: int, db: AsyncSession = Depends(get_db_session)):
+async def delete_todo(id: str, db: AsyncSession = Depends(get_db_session)):
     r = await crud_todo.delete_todo(db, id)
     if not r:
         raise HTTPException(

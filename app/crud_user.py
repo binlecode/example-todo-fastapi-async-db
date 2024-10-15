@@ -8,7 +8,7 @@ from . import schemas
 DEFAULT_LIMIT = 5
 
 
-async def get_user(db: AsyncSession, id: int):
+async def get_user(db: AsyncSession, id: str):
     # Use `joinedload` mode eager load to fetch belonging todos.
     # Other modes are like: `selectinload`, which runs `select * where user_id in (..)`.
     # This is a query design tradeoff of one join query vs two separate select queries.
@@ -22,7 +22,7 @@ async def get_user(db: AsyncSession, id: int):
     return None
 
 
-async def get_user_with_crudmixin(db: AsyncSession, id: int):
+async def get_user_with_crudmixin(db: AsyncSession, id: str):
     return await User.get(db, id)
 
 

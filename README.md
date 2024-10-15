@@ -1,18 +1,22 @@
 ## local run
 
 ```sh
-pyenv shell 3.10
+pyenv shell 3.11
 python -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
+# install all dependencies
 pip install -r requirements.txt
+# to upgrade all packages to latest version
+pip install --upgrade $(pip freeze | cut -d '=' -f 1)
+
 # reset local sqlite db during app start up
 RESET_DB=true uvicorn app.main:app --reload
 # or without db reset
 uvicorn app.main:app --reload
 ```
 
-## openapi doc
+## openapi doc endpoint
 
 Openapi doc is auto-generated at `http://127.0.0.1:8000/docs`.
 
